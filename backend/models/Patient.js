@@ -38,6 +38,16 @@ const patientSchema = new mongoose.Schema({
         trim: true
     },
 
+    // Patient file number used by the Patient Portal to identify existing patients.
+    // Kept optional to avoid breaking existing seeded patients.
+    fileNumber: {
+        type: String,
+        unique: true,
+        sparse: true,
+        trim: true,
+        match: [/^\d{3,}$/, 'File number must be numeric and at least 3 digits']
+    },
+
     // `unique: true` means no two patients can share the same email.
     // This prevents duplicate registrations.
     email: {

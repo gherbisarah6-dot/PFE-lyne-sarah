@@ -35,6 +35,7 @@ const Appointment  = require('../models/Appointment');
 const Patient      = require('../models/Patient');
 const Staff        = require('../models/Staff');
 const logAction    = require('../utils/auditLogger');
+const { sendSuccessEmail } = require('../utils/emailservice');
 
 // ─── 1. CREATE APPOINTMENT ──────────────────────────────────────────────────────
 /**
@@ -123,10 +124,27 @@ exports.createAppointment = async (req, res) => {
             }
         }
 
+        // Doctor double-booking protection (works for both new + existing patients):
+        // If ANY appointment exists for the same doctor at the exact same datetime,
+        // the slot is not available.
+        const existingDoctorAppointment = await Appointment.findOne({
+            doctor: doctorId,
+            date: appointmentDate,
+            status: { $ne: 'Cancelled' }
+        });
+
+        if (existingDoctorAppointment) {
+            return res.status(400).json({
+                success: false,
+                message: `Slot ${slotTimeString} is already booked for ${doctor.name}`
+            });
+        }
+
         // Check if patient already has an appointment at the exact same time
         const existingAppointment = await Appointment.findOne({
             patient: patientId,
-            date: appointmentDate
+            date: appointmentDate,
+            status: { $ne: 'Cancelled' }
         });
         if (existingAppointment) {
             return res.status(400).json({
@@ -162,6 +180,26 @@ exports.createAppointment = async (req, res) => {
 
         // Save to database
         await appointment.save();
+
+        // If we created the appointment already in "Confirmed",
+        // trigger the Success email now (idempotent).
+        if (appointment.status === 'Confirmed' && !appointment.successEmailSent) {
+            try {
+                await sendSuccessEmail({
+                    to: patient?.email,
+                    patientName: appointment.patientName,
+                    doctorName: appointment.doctorName,
+                    appointmentDate: appointment.date,
+                    appointmentId: appointment._id?.toString?.() ? appointment._id.toString() : appointment._id
+                });
+
+                appointment.successEmailSent = true;
+                appointment.successEmailSentAt = new Date();
+                await appointment.save();
+            } catch (emailErr) {
+                console.error('[createAppointment] Failed to send success email:', emailErr);
+            }
+        }
 
         // Populate the references so we return full objects, not just IDs
         await appointment.populate('patient');
@@ -331,12 +369,10 @@ exports.updateAppointmentStatus = async (req, res) => {
             });
         }
 
-        // Find and update
-        const appointment = await Appointment.findByIdAndUpdate(
-            id,
-            { status: status },
-            { new: true }  // Return the updated document
-        ).populate('patient').populate('doctor');
+        // Fetch first so we can do idempotent email triggering safely.
+        const appointment = await Appointment.findById(id)
+            .populate('patient')
+            .populate('doctor');
 
         if (!appointment) {
             return res.status(404).json({
@@ -344,6 +380,36 @@ exports.updateAppointmentStatus = async (req, res) => {
                 message: `Appointment with ID ${id} not found`
             });
         }
+
+        const previousStatus = appointment.status;
+        appointment.status = status;
+
+        // Email trigger requirement:
+        // When status becomes "Confirmed", send "Success" email automatically.
+        // Idempotency: only send once per appointment using successEmailSent flag.
+        if (status === 'Confirmed' && !appointment.successEmailSent) {
+            const patientEmail = appointment.patient?.email;
+
+            try {
+                const emailResult = await sendSuccessEmail({
+                    to: patientEmail,
+                    patientName: appointment.patientName,
+                    doctorName: appointment.doctorName,
+                    appointmentDate: appointment.date,
+                    appointmentId: appointment._id?.toString?.() ? appointment._id.toString() : appointment._id
+                });
+
+                if (emailResult?.sent) {
+                    appointment.successEmailSent = true;
+                    appointment.successEmailSentAt = new Date();
+                }
+            } catch (emailErr) {
+                console.error('[updateAppointmentStatus] Failed to send success email:', emailErr);
+                // Keep appointment status update successful even if email sending fails.
+            }
+        }
+
+        await appointment.save();
 
         // Log the status change
         await logAction(

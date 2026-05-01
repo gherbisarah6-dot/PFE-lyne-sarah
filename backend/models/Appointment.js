@@ -82,6 +82,11 @@ const appointmentSchema = new mongoose.Schema({
     // Free-text notes the receptionist or doctor can add, e.g., "Patient called to reschedule."
     notes: { type: String, default: '' },
 
+    // Prevent duplicate "Success" emails in workflows where status updates
+    // might be called multiple times.
+    successEmailSent: { type: Boolean, default: false },
+    successEmailSentAt: { type: Date }
+    
 }, {
     // `timestamps: true` adds `createdAt` and `updatedAt` automatically.
     // `createdAt` is used by the Monthly Activity chart to count new appointments per month.
