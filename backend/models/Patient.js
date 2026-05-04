@@ -34,7 +34,6 @@ const patientSchema = new mongoose.Schema({
     // Toggles for the Settings & Help page
     reminders: {
         email: { type: Boolean, default: true },
-        sms: { type: Boolean, default: false }
     },
 
     // --- Old Records (File Storage) ---

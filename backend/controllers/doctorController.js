@@ -261,7 +261,8 @@ exports.getDetailedPatientProfile = async (req, res) => {
                 age: new Date().getFullYear() - new Date(patient.dateOfBirth).getFullYear(),
                 phone: patient.phone,
                 allergies: patient.allergies,
-                chronicConditions: patient.chronicConditions
+                chronicConditions: patient.chronicConditions,
+                hereditaryConditions: patient.hereditaryConditions,
             },
             visitHistory: consultations.map(c => ({
                 date: c.date,

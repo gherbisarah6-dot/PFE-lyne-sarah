@@ -186,3 +186,29 @@ exports.uploadOldRecord = async (req, res) => {
         res.status(500).json({ error: "Upload failed" });
     }
 };
+
+/**
+ * GET PROFILE BY TOKEN
+ * This is the "Who Am I?" function. 
+ * Instead of taking an ID from the URL, it takes the ID from the secure JWT token.
+ */
+exports.getProfileByToken = async (req, res) => {
+    try {
+        // 'req.user.id' is set by your protect middleware after it unlocks the token[cite: 9]
+        const patient = await Patient.findById(req.user.id);
+
+        if (!patient) {
+            return res.status(404).json({ message: "Patient not found" });
+        }
+
+        // We send back exactly what the Sidebar and Settings need to show[cite: 4, 5]
+        res.status(200).json({
+            name: `${patient.firstName} ${patient.lastName}`,
+            patientId: patient.fileCode || patient._id, // Uses your fileCode or DB ID
+            email: patient.email,
+            phone: patient.phone
+        });
+    } catch (error) {
+        res.status(500).json({ error: "Could not retrieve profile" });
+    }
+};

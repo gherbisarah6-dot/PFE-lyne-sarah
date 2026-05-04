@@ -5,6 +5,7 @@
 const express = require('express');
 const router = express.Router();
 const patientController = require('../controllers/patientController');
+const { protect } = require('../middleware/authMiddleware');
 
 // --- ENTRY POINTS (External & Login) ---
 
@@ -42,6 +43,10 @@ router.get('/history/:patientId', patientController.getConsultationHistory);
 
 // POST /api/patients/records/:patientId -> For "Add File" in Old Records
 router.post('/records/:patientId', patientController.uploadOldRecord);
+
+// --- NEW SECURE PROFILE ROUTE ---
+// This is what Dashboard calls to get the user's name/ID
+router.get('/profile', protect, patientController.getProfileByToken);
 
 
 module.exports = router;

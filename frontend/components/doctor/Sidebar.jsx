@@ -64,7 +64,7 @@ export default function DoctorSidebar() {
             </div>
             <div>
               <h2 className="font-bold text-foreground">Dr. Ahmed Nouar</h2>
-              <p className="text-xs text-muted-foreground">Gynecologist</p>
+              <p className="text-xs text-muted-foreground">General Medicine</p>
             </div>
           </div>
         </div>
