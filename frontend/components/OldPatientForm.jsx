@@ -20,16 +20,29 @@ export default function OldPatientForm() {
 
     setLoading(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      // Mock validation - file numbers should be numeric and at least 3 digits
-      if (/^\d{3,}$/.test(fileNumber)) {
+    try {
+      // Connects directly to your patient login endpoint
+      const response = await fetch('http://localhost:5000/api/patients/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fileCode: fileNumber }) 
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Store the JWT Token and Patient ID for the dashboard[cite: 4]
+        localStorage.setItem('token', data.token); 
+        localStorage.setItem('patientId', data.patientId);
         router.push('/dashboard');
       } else {
-        setError('Invalid file number. Please check and try again.');
+        setError(data.message || 'Invalid file number.');
         setLoading(false);
       }
-    }, 500);
+    } catch (err) {
+      setError('Server connection error. Please try again.');
+      setLoading(false);
+    }
   };
 
   return (
@@ -55,17 +68,11 @@ export default function OldPatientForm() {
       <button
         type="submit"
         disabled={loading}
-        className="w-full bg-gradient-to-r from-[#1d4ed8] to-[#1d4ed8] text-white font-semibold py-3 rounded-lg hover:from-[#1d4ed8] hover:to-[#1d4ed8] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        className="w-full bg-[#1d4ed8] text-white font-semibold py-3 rounded-lg hover:opacity-90 transition-all flex items-center justify-center gap-2"
       >
-        {loading && (
-          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-        )}
+        {loading && <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />}
         {loading ? 'Logging in...' : 'Login'}
       </button>
-
-      <p className="text-xs text-center text-gray-500">
-        Your file number can be found on your appointment card or previous visit documentation.
-      </p>
     </form>
   );
 }
