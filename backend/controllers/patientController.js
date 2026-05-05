@@ -212,3 +212,20 @@ exports.getProfileByToken = async (req, res) => {
         res.status(500).json({ error: "Could not retrieve profile" });
     }
 };
+
+exports.getAllPatients = async (req, res) => {
+    try {
+        // This fetches all patients so the receptionist can see the list
+        const patients = await Patient.find({});
+        res.status(200).json(patients);
+    } catch (error) {
+        console.error("Error fetching patients:", error);
+        res.status(500).json({ error: "Could not retrieve patient list" });
+    }
+};
+
+module.exports = {
+    getProfileByToken: exports.getProfileByToken,
+    getAllPatients: exports.getAllPatients
+    
+};

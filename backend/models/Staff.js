@@ -1,21 +1,28 @@
-/**
- * =============================================================================
- * STAFF MODEL — models/user.js
- * =============================================================================
- *
- * STUDENT DEFENSE NOTE:
- * This is the "blueprint" (Schema) for a staff member in our MongoDB database.
- * We use Mongoose schemas to enforce data integrity — without one, MongoDB would
- * accept any data in any shape, which is dangerous.
- *
- * Key design decisions:
- *  - `required` fields prevent saving an incomplete record (e.g., no name).
- *  - `enum` on `status` ensures only the two legal values can ever be stored.
- *  - `timestamps: true` auto-adds `createdAt` and `updatedAt` to every document.
- *  - Workload fields (consultations, hoursWorked, etc.) allow the admin Dashboard
- *    to show a "Staff Workload" section with real data, not mock data.
- * =============================================================================
- */
+
+
+
+
+
+// you clean this and take admin + receptionist outside this + no huge comments 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 const mongoose = require('mongoose');
 

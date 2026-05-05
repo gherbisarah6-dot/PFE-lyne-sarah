@@ -39,7 +39,7 @@ export default function Sidebar({ user, activeSection, setActiveSection, sidebar
       {/* Navigation Menu code remains the same... */}
     </>
   );
-}
+
   return (
     <>
       {/* Desktop Sidebar */}
@@ -81,3 +81,4 @@ export default function Sidebar({ user, activeSection, setActiveSection, sidebar
       )}
     </>
   );
+}

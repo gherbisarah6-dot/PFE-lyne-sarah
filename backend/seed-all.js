@@ -6,7 +6,7 @@ const Appointment = require('./models/Appointment');
 
 const seedData = async () => {
   try {
-    await mongoose.connect(process.env.MONGO_URI);
+    await mongoose.connect(process.env.MONGODB_URI);
     console.log('Connected to MongoDB...');
 
     await Staff.deleteMany({});
@@ -19,6 +19,7 @@ const seedData = async () => {
         name: "Dr. Ahmed Nouar",
         role: "Doctor",
         email: "dr.nouar@clinic.com",
+        password: "password123",
         specialization: "General Medicine",
         status: "Active",
         schedule: { slotDuration: 30, availableSlots: [{ startTime: "09:00", endTime: "12:00", status: "available" }] }
@@ -27,6 +28,7 @@ const seedData = async () => {
         name: "Dr. Selina Ryad",
         role: "Doctor",
         email: "dr.ryad@clinic.com",
+        password: "password123",
         specialization: "Pediatrics", 
         status: "Active",
         schedule: { slotDuration: 30, availableSlots: [{ startTime: "09:00", endTime: "12:00", status: "available" }] }
@@ -35,6 +37,7 @@ const seedData = async () => {
         name: "Karima Reception",
         role: "Receptionist",
         email: "reception@clinic.com",
+        password: "password123",
         status: "Active"
       }
     ]);

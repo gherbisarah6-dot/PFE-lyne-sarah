@@ -1,6 +1,5 @@
 /**
  * PATIENT MODEL
-
  */
 
 const mongoose = require('mongoose');
@@ -59,4 +58,5 @@ const patientSchema = new mongoose.Schema({
     timestamps: true // This provides the "Member Since" date seen in the UI
 });
 
-module.exports = mongoose.model('Patient', patientSchema);
+//'users' so it matches your report in Atlas
+module.exports = mongoose.model('Patient', patientSchema, 'users');

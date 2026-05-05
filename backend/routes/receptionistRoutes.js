@@ -245,7 +245,9 @@ router.get('/doctors/:doctorId/available-slots', appointmentCtrl.getDoctorAvaila
  * Receptionists need to search for existing patients before booking appointments.
  * They can search by name to find "Ahmed Benali" instead of typing his ID.
  */
-router.get('/patients', patientCtrl.getAllPatients);
+// Change line 248 from: router.get('/patients', patientCtrl.getAllPatients);
+// To this (Temporary fix so your server starts):
+router.get('/patients', patientCtrl.getAllPatients || ((req, res) => res.json({ message: "Partner hasn't built this yet" })));
 
 /**
  * GET /api/receptionist/patients/:id
@@ -256,8 +258,7 @@ router.get('/patients', patientCtrl.getAllPatients);
  * - Show medical history (allergies, conditions, etc.) before booking
  * - Verify insurance or payment status before appointment
  */
-router.get('/patients/:id', patientCtrl.getPatientById);
-
+router.get('/patients/:id', patientCtrl.getPatientById || ((req, res) => res.send("Missing")));
 /**
  * POST /api/receptionist/patients
  * Register a new patient
@@ -288,7 +289,7 @@ router.get('/patients/:id', patientCtrl.getPatientById);
  * On the frontend, after successful registration, the new patient is
  * immediately available for appointment booking.
  */
-router.post('/patients', patientCtrl.addPatient);
+router.post('/patients', patientCtrl.addPatient || ((req, res) => res.send("Missing")));
 
 /**
  * PUT /api/receptionist/patients/:id
@@ -299,7 +300,7 @@ router.post('/patients', patientCtrl.addPatient);
  * - Receptionist corrects data entered by mistake
  * - Allergies or medical conditions change
  */
-router.put('/patients/:id', patientCtrl.updatePatient);
+router.put('/patients/:id', patientCtrl.updatePatient || ((req, res) => res.send("Missing")));
 
 // =============================================================================
 // AUTHENTICATION & AUTHORIZATION (TODO)
